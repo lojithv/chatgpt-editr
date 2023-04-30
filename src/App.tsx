@@ -35,12 +35,17 @@ function App() {
         console.log(results[0]);
         var div = document.createElement("div");
         div.innerHTML = results[0].trim();
-        const collection = div.getElementsByClassName("markdown");
+        const answers = div.getElementsByClassName("markdown");
+        const questions = div.getElementsByClassName("min-h-[20px] flex flex-col items-start gap-4 whitespace-pre-wrap break-words");
+
+        console.log(questions)
 
         const divsHtml = [];
 
-        for (let i = 0; i < collection.length; i++) {
-          divsHtml.push(collection[i].outerHTML);
+        for (let i = 0; i < answers.length; i++) {
+          divsHtml.push(questions[i].outerHTML);
+          divsHtml.push(answers[i].outerHTML);
+          divsHtml.push('<div style="background-color:red; height:30px;">space</div>')
         }
         const html = divsHtml.join('');
         setDom(html);

@@ -4,6 +4,7 @@
   max-width: 700px;
   min-height: 300px;
   max-height: 700px;
+  overflow: scroll;
 }
 
 .App-logo {
