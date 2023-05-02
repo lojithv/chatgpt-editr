@@ -37,7 +37,10 @@ function App() {
       //You can play with your DOM here or check URL against your regex
       console.log("Tab script:");
       console.log(document.body);
-      return document.body.innerHTML;
+      const documentCopy = document;
+      const elems = documentCopy.querySelectorAll('span button');
+      elems.forEach(e => e.remove());
+      return documentCopy.body.innerHTML;
     }
 
     //We have permission to access the activeTab, so we can call chrome.tabs.executeScript:
@@ -51,18 +54,17 @@ function App() {
         console.log(results[0]);
         var div = document.createElement("div");
         div.innerHTML = results[0].trim();
-        const answers = div.getElementsByClassName("markdown");
-        const questions = div.getElementsByClassName(
-          "min-h-[20px] flex flex-col items-start gap-4 whitespace-pre-wrap break-words"
+
+        const all = div.getElementsByClassName(
+          "flex flex-grow flex-col gap-3"
         );
 
-        console.log(questions);
+        console.log(all);
 
         const divsHtml = [];
 
-        for (let i = 0; i < answers.length; i++) {
-          divsHtml.push(questions[i].outerHTML);
-          divsHtml.push(answers[i].outerHTML);
+        for (let i = 0; i < all.length; i++) {
+          divsHtml.push(all[i].outerHTML);
           divsHtml.push(
             '<div style="background-color:red; height:30px;"></div>'
           );
@@ -129,6 +131,7 @@ function App() {
                 editorState={editorState}
                 onChange={setEditorState}
                 readOnly={downloadType.downloadNow}
+                textAlignment="left"
               />
             </div>
             {downloadType.downloadNow ? (
