@@ -22,16 +22,6 @@ function App() {
   );
 
   const testDom = () => {
-    // console.log("Test dom")
-    // chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    //   const activeTab = tabs[0];
-    //   if (activeTab && activeTab.id) {
-    //     console.log(activeTab)
-    //     chrome.tabs.sendMessage(activeTab.id, { message: "get_dom" });
-    //   }
-    // });
-
-    console.log("Popup DOM fully loaded and parsed");
 
     function modifyDOM() {
       //You can play with your DOM here or check URL against your regex
@@ -151,18 +141,6 @@ function App() {
           </PDFDownloadLink>
         ) : (
           <>
-            <img src={logo} className="App-logo" alt="logo" />
-            <p>
-              Edit <code>src/App.tsx</code> and save to reload.
-            </p>
-            <a
-              className="App-link"
-              href="https://reactjs.org"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learn React
-            </a>
             <button onClick={testDom}>Read Dom</button>
           </>
         )}
