@@ -93,7 +93,7 @@ function App() {
           Export2Word("document-html.pdf");
           return;
         }
-        doc.html(elementHTML, {
+        doc.html(dom, {
           callback: function (doc) {
             // Save the PDF
             doc.save("document-html.pdf");
