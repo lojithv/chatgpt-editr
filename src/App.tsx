@@ -1,10 +1,16 @@
 import React, { useState } from "react";
 import logo from "./logo.svg";
 import "./App.css";
-import { ContentState, Editor, EditorState, convertFromHTML } from "draft-js";
+import { ContentState, Editor, EditorState, convertFromHTML, convertToRaw } from "draft-js";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import PdfDoc from "./PdfDoc";
 import jsPDF from "jspdf";
+
+import SunEditor from 'suneditor-react';
+import 'suneditor/dist/css/suneditor.min.css';
+import draftToHtml from "draftjs-to-html";
+
+
 
 enum DownloadType {
   PDF = "PDF",
@@ -127,12 +133,13 @@ function App() {
         {dom ? (
           <>
             <div id="contentToPrint">
-              <Editor
+              {/* <Editor
                 editorState={editorState}
                 onChange={setEditorState}
                 readOnly={downloadType.downloadNow}
                 textAlignment="left"
-              />
+              /> */}
+              <SunEditor defaultValue={dom} setDefaultStyle="text-align:left;" />
             </div>
             {downloadType.downloadNow ? (
               <button onClick={handleDownload}>DOWNLOAD AS A PDF</button>
@@ -172,3 +179,7 @@ function App() {
 }
 
 export default App;
+function customEntityTransform(...args: any[]) {
+  throw new Error("Function not implemented.");
+}
+
