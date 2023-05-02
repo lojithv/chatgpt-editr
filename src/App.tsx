@@ -1,9 +1,25 @@
 import React, { useState } from "react";
 import logo from "./logo.svg";
 import "./App.css";
+import { ContentState, Editor, EditorState, convertFromHTML } from "draft-js";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import PdfDoc from "./PdfDoc";
+import jsPDF from "jspdf";
+
+enum DownloadType {
+  PDF = "PDF",
+  DOC = "DOC",
+}
 
 function App() {
   const [dom, setDom] = useState("");
+  const [downloadType, setDownloadType] = useState({
+    type: DownloadType.PDF,
+    downloadNow: false,
+  });
+  const [editorState, setEditorState] = useState(() =>
+    EditorState.createEmpty()
+  );
 
   const testDom = () => {
     // console.log("Test dom")
@@ -36,19 +52,30 @@ function App() {
         var div = document.createElement("div");
         div.innerHTML = results[0].trim();
         const answers = div.getElementsByClassName("markdown");
-        const questions = div.getElementsByClassName("min-h-[20px] flex flex-col items-start gap-4 whitespace-pre-wrap break-words");
+        const questions = div.getElementsByClassName(
+          "min-h-[20px] flex flex-col items-start gap-4 whitespace-pre-wrap break-words"
+        );
 
-        console.log(questions)
+        console.log(questions);
 
         const divsHtml = [];
 
         for (let i = 0; i < answers.length; i++) {
           divsHtml.push(questions[i].outerHTML);
           divsHtml.push(answers[i].outerHTML);
-          divsHtml.push('<div style="background-color:red; height:30px;">space</div>')
+          divsHtml.push(
+            '<div style="background-color:red; height:30px;"></div>'
+          );
         }
-        const html = divsHtml.join('');
+        const html = divsHtml.join("");
         setDom(html);
+        const blocksFromHTML = convertFromHTML(html);
+        console.log(blocksFromHTML);
+        const state = ContentState.createFromBlockArray(
+          blocksFromHTML.contentBlocks,
+          blocksFromHTML.entityMap
+        );
+        setEditorState(EditorState.createWithContent(state));
       }
     );
   };
@@ -63,14 +90,62 @@ function App() {
 
   chrome.runtime.onMessage.addListener(handleMessage);
 
+  const handleDownload = () => {
+    if (downloadType.downloadNow) {
+      var doc = new jsPDF();
+
+      // Source HTMLElement or a string containing HTML.
+      var elementHTML = document.querySelector(
+        "#contentToPrint"
+      ) as HTMLElement;
+
+      if (elementHTML) {
+        doc.html(elementHTML, {
+          callback: function (doc) {
+            // Save the PDF
+            doc.save("document-html.pdf");
+          },
+          margin: [10, 10, 10, 10],
+          autoPaging: "text",
+          x: 0,
+          y: 0,
+          width: 190, //target width in the PDF document
+          windowWidth: 675, //window width in CSS pixels
+        });
+      }
+    } else {
+      console.log("get download link");
+      setDownloadType({ ...downloadType, downloadNow: true });
+    }
+  };
+
   return (
     <div className="App">
       <header className="App-header">
         {dom ? (
-          <div
-            className="content"
-            dangerouslySetInnerHTML={{ __html: dom }}
-          ></div>
+          <>
+            <div id="contentToPrint">
+              <Editor
+                editorState={editorState}
+                onChange={setEditorState}
+                readOnly={downloadType.downloadNow}
+              />
+            </div>
+            {downloadType.downloadNow ? (
+              <button onClick={handleDownload}>DOWNLOAD AS A PDF</button>
+            ) : (
+              <button onClick={handleDownload}>CONVERT TO HTML</button>
+            )}
+          </>
+        ) : downloadType.downloadNow ? (
+          <PDFDownloadLink
+            document={<PdfDoc editorState={editorState} />}
+            fileName="my-document.pdf"
+          >
+            {({ blob, url, loading, error }) =>
+              loading ? "Loading document..." : "Download PDF"
+            }
+          </PDFDownloadLink>
         ) : (
           <>
             <img src={logo} className="App-logo" alt="logo" />
@@ -85,10 +160,9 @@ function App() {
             >
               Learn React
             </a>
+            <button onClick={testDom}>Read Dom</button>
           </>
         )}
-
-        <button onClick={testDom}>Read Dom</button>
       </header>
     </div>
   );
