@@ -1,6 +1,6 @@
 {
-  "short_name": "Your Extension Name",
-  "name": "Your Extension Name",
+  "short_name": "ChatGPT Editr",
+  "name": "ChatGPT Editr",
   "icons": {
     "16": "favicon.ico",
     "48": "logo192.png",
@@ -15,6 +15,6 @@
   "version": "0.0.1",
   "browser_action": {
     "default_popup": "index.html",
-    "default_title": "Your Extension Name"
+    "default_title": "ChatGPT Editr"
   }
 }
