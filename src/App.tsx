@@ -1,16 +1,20 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import logo from "./logo.svg";
 import "./App.css";
-import { ContentState, Editor, EditorState, convertFromHTML, convertToRaw } from "draft-js";
+import {
+  ContentState,
+  Editor,
+  EditorState,
+  convertFromHTML,
+  convertToRaw,
+} from "draft-js";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import PdfDoc from "./PdfDoc";
 import jsPDF from "jspdf";
 
-import SunEditor from 'suneditor-react';
-import 'suneditor/dist/css/suneditor.min.css';
+import SunEditor from "suneditor-react";
+import "suneditor/dist/css/suneditor.min.css";
 import draftToHtml from "draftjs-to-html";
-
-
 
 enum DownloadType {
   PDF = "PDF",
@@ -27,15 +31,21 @@ function App() {
     EditorState.createEmpty()
   );
 
-  const testDom = () => {
+  const suneditor = useRef();
 
+  const getSunEditorInstance = (sunEditor: any) => {
+    suneditor.current = sunEditor;
+    console.log(sunEditor)
+  };
+
+  const testDom = () => {
     function modifyDOM() {
       //You can play with your DOM here or check URL against your regex
       console.log("Tab script:");
       console.log(document.body);
       const documentCopy = document;
-      const elems = documentCopy.querySelectorAll('span button');
-      elems.forEach(e => e.remove());
+      const elems = documentCopy.querySelectorAll("span button");
+      elems.forEach((e) => e.remove());
       return documentCopy.body.innerHTML;
     }
 
@@ -51,9 +61,7 @@ function App() {
         var div = document.createElement("div");
         div.innerHTML = results[0].trim();
 
-        const all = div.getElementsByClassName(
-          "flex flex-grow flex-col gap-3"
-        );
+        const all = div.getElementsByClassName("flex flex-grow flex-col gap-3");
 
         console.log(all);
 
@@ -97,8 +105,11 @@ function App() {
         "#contentToPrint"
       ) as HTMLElement;
 
-      if (elementHTML) {
-        doc.html(elementHTML, {
+      var finalHtml = document.createElement("div");
+      finalHtml.innerHTML = dom;
+
+      if (finalHtml) {
+        doc.html(finalHtml, {
           callback: function (doc) {
             // Save the PDF
             doc.save("document-html.pdf");
@@ -117,6 +128,11 @@ function App() {
     }
   };
 
+  const handleSunEditorChange = (content: string) =>{
+    console.log(content)
+    setDom(content)
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -129,7 +145,11 @@ function App() {
                 readOnly={downloadType.downloadNow}
                 textAlignment="left"
               /> */}
-              <SunEditor defaultValue={dom} setDefaultStyle="text-align:left;" />
+              <SunEditor
+                setDefaultStyle="text-align:left;"
+                setContents={dom}
+                onChange={handleSunEditorChange}
+              />
             </div>
             {downloadType.downloadNow ? (
               <button onClick={handleDownload}>DOWNLOAD AS A PDF</button>
@@ -160,4 +180,3 @@ export default App;
 function customEntityTransform(...args: any[]) {
   throw new Error("Function not implemented.");
 }
-
