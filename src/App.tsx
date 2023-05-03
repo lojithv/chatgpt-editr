@@ -1,9 +1,7 @@
-import React, { useState } from "react";
-import logo from "./logo.svg";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 import { ContentState, Editor, EditorState, convertFromHTML } from "draft-js";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import PdfDoc from "./PdfDoc";
+import {stateToHTML} from 'draft-js-export-html';
 import jsPDF from "jspdf";
 
 enum DownloadType {
@@ -20,6 +18,10 @@ function App() {
   const [editorState, setEditorState] = useState(() =>
     EditorState.createEmpty()
   );
+
+  useEffect(() => {
+    testDom();
+  }, []);
 
   const testDom = () => {
     function modifyDOM() {
@@ -51,7 +53,9 @@ function App() {
         const divsHtml = [];
 
         for (let i = 0; i < all.length; i++) {
-          divsHtml.push('<div style="color:black;">'+ all[i].outerHTML+'</div>');
+          divsHtml.push(
+            '<div style="color:black;">' + all[i].outerHTML + "</div>"
+          );
           divsHtml.push('<div style="height:30px;"></div>');
         }
         const html = divsHtml.join("");
@@ -78,7 +82,7 @@ function App() {
   chrome.runtime.onMessage.addListener(handleMessage);
 
   const handleDownload = (downloadOption?: DownloadType) => {
-    if (downloadType.downloadNow) {
+    if (downloadType.downloadNow || dom) {
       var doc = new jsPDF();
 
       // Source HTMLElement or a string containing HTML.
@@ -91,18 +95,23 @@ function App() {
           Export2Word("document-html.pdf");
           return;
         }
-        doc.html(dom, {
-          callback: function (doc) {
-            // Save the PDF
-            doc.save("document-html.pdf");
-          },
-          margin: [10, 10, 10, 10],
-          autoPaging: "text",
-          x: 0,
-          y: 0,
-          width: 190, //target width in the PDF document
-          windowWidth: 675, //window width in CSS pixels
-        });
+
+        // doc.html(dom, {
+        //   callback: function (doc) {
+        //     // Save the PDF
+        //     doc.save("document-html.pdf");
+        //   },
+        //   margin: [10, 10, 10, 10],
+        //   autoPaging: "slice",
+        //   x: 0,
+        //   y: 0,
+        //   width: 190, //target width in the PDF document
+        //   windowWidth: 675, //window width in CSS pixels
+        // });
+
+        var wnd = window.open('about:blank', '', '_blank');
+        wnd?.document.write(dom);
+        wnd?.print();
       }
     } else {
       console.log("get download link");
@@ -142,48 +151,41 @@ function App() {
   }
 
   const getElement = () => {
-    return  <div dangerouslySetInnerHTML={{ __html: dom }} />
+    return <div dangerouslySetInnerHTML={{ __html: dom }} />;
   };
+
+  const handleEditorChange = (value:EditorState) =>{
+    setEditorState(value)
+    const blocks = value.getCurrentContent().getBlocksAsArray()
+    console.log(blocks)
+    let html = stateToHTML(value.getCurrentContent());
+    console.log(html)
+    setDom(html)
+  }
 
   return (
     <div className="App">
       <div>
-        {dom ? (
+        {dom && (
           <>
+            <>
+              <button onClick={() => handleDownload()}>
+                DOWNLOAD AS A PDF
+              </button>
+              <button onClick={() => handleDownload(DownloadType.DOC)}>
+                DOWNLOAD AS A DOC
+              </button>
+            </>
+
             <div id="contentToPrint">
               {/* <Editor
                 editorState={editorState}
-                onChange={setEditorState}
+                onChange={handleEditorChange}
                 readOnly={downloadType.downloadNow}
                 textAlignment="left"
               /> */}
               {getElement()}
             </div>
-            {downloadType.downloadNow ? (
-              <>
-                <button onClick={() => handleDownload()}>
-                  DOWNLOAD AS A PDF
-                </button>
-                <button onClick={() => handleDownload(DownloadType.DOC)}>
-                  DOWNLOAD AS A DOC
-                </button>
-              </>
-            ) : (
-              <button onClick={() => handleDownload()}>CONVERT TO HTML</button>
-            )}
-          </>
-        ) : downloadType.downloadNow ? (
-          <PDFDownloadLink
-            document={<PdfDoc editorState={editorState} />}
-            fileName="my-document.pdf"
-          >
-            {({ blob, url, loading, error }) =>
-              loading ? "Loading document..." : "Download PDF"
-            }
-          </PDFDownloadLink>
-        ) : (
-          <>
-            <button onClick={testDom}>Read Dom</button>
           </>
         )}
       </div>
