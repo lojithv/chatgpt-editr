@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
-import { ContentState, Editor, EditorState, convertFromHTML } from "draft-js";
-import {stateToHTML} from 'draft-js-export-html';
-import jsPDF from "jspdf";
 
 enum DownloadType {
   PDF = "PDF",
@@ -15,9 +12,6 @@ function App() {
     type: DownloadType.PDF,
     downloadNow: false,
   });
-  const [editorState, setEditorState] = useState(() =>
-    EditorState.createEmpty()
-  );
 
   useEffect(() => {
     testDom();
@@ -26,8 +20,6 @@ function App() {
   const testDom = () => {
     function modifyDOM() {
       //You can play with your DOM here or check URL against your regex
-      console.log("Tab script:");
-      console.log(document.body);
       const documentCopy = document;
       const elems = documentCopy.querySelectorAll("span button");
       elems.forEach((e) => e.remove());
@@ -41,14 +33,10 @@ function App() {
       },
       (results) => {
         //Here we have just the innerHTML and not DOM structure
-        console.log("Popup script:");
-        console.log(results[0]);
         var div = document.createElement("div");
         div.innerHTML = results[0].trim();
 
         const all = div.getElementsByClassName("flex flex-grow flex-col gap-3");
-
-        console.log(all);
 
         const divsHtml = [];
 
@@ -60,22 +48,13 @@ function App() {
         }
         const html = divsHtml.join("");
         setDom(html);
-        const blocksFromHTML = convertFromHTML(html);
-        console.log(blocksFromHTML);
-        const state = ContentState.createFromBlockArray(
-          blocksFromHTML.contentBlocks,
-          blocksFromHTML.entityMap
-        );
-        setEditorState(EditorState.createWithContent(state));
       }
     );
   };
 
   const handleMessage = (message: { dom: React.SetStateAction<string> }) => {
-    console.log("handle message");
     if (message.dom) {
       setDom(message.dom);
-      console.log(message.dom);
     }
   };
 
@@ -83,38 +62,18 @@ function App() {
 
   const handleDownload = (downloadOption?: DownloadType) => {
     if (downloadType.downloadNow || dom) {
-      var doc = new jsPDF();
 
-      // Source HTMLElement or a string containing HTML.
-      var elementHTML = document.querySelector(
-        "#contentToPrint"
-      ) as HTMLElement;
-
-      if (elementHTML) {
+      if (dom) {
         if (downloadOption === DownloadType.DOC) {
           Export2Word("document-html.pdf");
           return;
         }
-
-        // doc.html(dom, {
-        //   callback: function (doc) {
-        //     // Save the PDF
-        //     doc.save("document-html.pdf");
-        //   },
-        //   margin: [10, 10, 10, 10],
-        //   autoPaging: "slice",
-        //   x: 0,
-        //   y: 0,
-        //   width: 190, //target width in the PDF document
-        //   windowWidth: 675, //window width in CSS pixels
-        // });
 
         var wnd = window.open('about:blank', '', '_blank');
         wnd?.document.write(dom);
         wnd?.print();
       }
     } else {
-      console.log("get download link");
       setDownloadType({ ...downloadType, downloadNow: true });
     }
   };
@@ -154,15 +113,6 @@ function App() {
     return <div dangerouslySetInnerHTML={{ __html: dom }} />;
   };
 
-  const handleEditorChange = (value:EditorState) =>{
-    setEditorState(value)
-    const blocks = value.getCurrentContent().getBlocksAsArray()
-    console.log(blocks)
-    let html = stateToHTML(value.getCurrentContent());
-    console.log(html)
-    setDom(html)
-  }
-
   return (
     <div className="App">
       <div>
@@ -178,12 +128,6 @@ function App() {
             </>
 
             <div id="contentToPrint">
-              {/* <Editor
-                editorState={editorState}
-                onChange={handleEditorChange}
-                readOnly={downloadType.downloadNow}
-                textAlignment="left"
-              /> */}
               {getElement()}
             </div>
           </>
