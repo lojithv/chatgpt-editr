@@ -4,6 +4,10 @@
   padding: 10px;
 }
 
+.logo-text{
+  font-family: 'Montserrat', sans-serif;
+}
+
 .solid {
   height: 3px;
   background-color: gray;
@@ -11,4 +15,40 @@
   border-radius: 10px;
   margin-top: 5px;
   margin-bottom: 5px;
+}
+
+.export-btn{
+  border: none;
+  height: 45px;
+  width: 45px;
+  background-color: springgreen;
+}
+
+.export-btn-icon{
+  height: 40px;
+  width: 40px;
+}
+
+.chat-preview{
+  padding-top: 60px;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px grey; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgb(149, 201, 175); 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(175, 216, 196); 
 }

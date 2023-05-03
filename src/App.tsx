@@ -12,6 +12,7 @@ function App() {
     type: DownloadType.PDF,
     downloadNow: false,
   });
+  const [documentName, setDocumentName] = useState("");
 
   useEffect(() => {
     testDom();
@@ -35,6 +36,15 @@ function App() {
         //Here we have just the innerHTML and not DOM structure
         var div = document.createElement("div");
         div.innerHTML = results[0].trim();
+
+        const chatTitleElem = div.getElementsByClassName(
+          "flex py-3 px-3 items-center gap-3 relative rounded-md cursor-pointer break-all )} pr-14 )} bg-gray-800 hover:bg-gray-800 group"
+        );
+        const chatTitle = chatTitleElem[0]?.textContent;
+        if (chatTitle) {
+          console.log(chatTitle);
+          setDocumentName(chatTitle);
+        }
 
         const all = div.getElementsByClassName("flex flex-grow flex-col gap-3");
 
@@ -63,13 +73,22 @@ function App() {
   const handleDownload = (downloadOption?: DownloadType) => {
     if (downloadType.downloadNow || dom) {
       if (downloadOption === DownloadType.DOC) {
-        Export2Word("document-html.pdf");
+        Export2Word(documentName);
         return;
       }
 
       var wnd = window.open("about:blank", "", "_blank");
-      wnd?.document.write(dom);
-      wnd?.print();
+      if (wnd && wnd.document) {
+        var preHtml = `<html><head><meta charset='utf-8'><title>${
+          documentName ? documentName : "Export HTML To Doc"
+        }</title></head><body>`;
+        var postHtml = "</body></html>";
+
+        var html = preHtml + dom + postHtml;
+
+        wnd?.document.write(html);
+        wnd?.print();
+      }
     } else {
       setDownloadType({ ...downloadType, downloadNow: true });
     }
@@ -124,26 +143,60 @@ function App() {
           <div
             style={{
               display: "flex",
-              justifyContent: "center",
+              justifyContent: "space-around",
               alignItems: "center",
               width: "100%",
+              height: "60px",
               gap: "40px",
+              position: "fixed",
+              top: "0px",
+              left: "0px",
+              backgroundColor: "#d6ffe1",
             }}
           >
-            <div style={{ fontSize: "15px" }}>Export Options</div>
-            <button onClick={() => handleDownload()} title="DOWNLOAD AS A PDF">
-              <img src="./pdf.svg" />
-            </button>
-            <button
-              onClick={() => handleDownload(DownloadType.DOC)}
-              title="DOWNLOAD AS A DOC"
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "5px",
+              }}
             >
-              <img src="./doc.svg" />
-            </button>
+              <img src="./logo.svg" width={40} height={40} />
+              <div className="logo-text" style={{ fontSize: "15px" }}>
+                ChatGPT2Doc
+              </div>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "5px",
+              }}
+            >
+              <button
+                className="export-btn"
+                onClick={() => handleDownload()}
+                title="DOWNLOAD AS A PDF"
+              >
+                <img src="./pdf.svg" width={35} height={35} />
+              </button>
+              <button
+                onClick={() => handleDownload(DownloadType.DOC)}
+                className="export-btn"
+                title="DOWNLOAD AS A DOC"
+              >
+                <img src="./doc.svg" width={35} height={35} />
+              </button>
+            </div>
           </div>
           <div className="solid"></div>
 
-          <div id="contentToPrint">{getElement()}</div>
+          <div className="chat-preview" id="contentToPrint">
+            {getElement()}
+          </div>
         </div>
       )}
     </div>

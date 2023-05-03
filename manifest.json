@@ -1,20 +1,20 @@
 {
-  "short_name": "ChatGPT Editr",
-  "name": "ChatGPT Editr",
+  "short_name": "ChatGPT2Doc",
+  "name": "ChatGPT2Doc",
   "icons": {
     "16": "favicon.ico",
-    "48": "logo192.png",
-   "128": "logo512.png"
+    "48": "logoSmall.png",
+   "128": "logoMedium.png"
   },
   "permissions": ["activeTab"],
   "host_permissions": [
-    "http://*/*",
-    "https://*/*"
+    "http://chat.openai.com/*/*",
+    "https://chat.openai.com/*/*"
   ],
   "manifest_version": 2,
   "version": "0.0.1",
   "browser_action": {
     "default_popup": "index.html",
-    "default_title": "ChatGPT Editr"
+    "default_title": "ChatGPT2Doc"
   }
 }
