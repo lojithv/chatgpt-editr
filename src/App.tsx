@@ -62,17 +62,14 @@ function App() {
 
   const handleDownload = (downloadOption?: DownloadType) => {
     if (downloadType.downloadNow || dom) {
-
-      if (dom) {
-        if (downloadOption === DownloadType.DOC) {
-          Export2Word("document-html.pdf");
-          return;
-        }
-
-        var wnd = window.open('about:blank', '', '_blank');
-        wnd?.document.write(dom);
-        wnd?.print();
+      if (downloadOption === DownloadType.DOC) {
+        Export2Word("document-html.pdf");
+        return;
       }
+
+      var wnd = window.open("about:blank", "", "_blank");
+      wnd?.document.write(dom);
+      wnd?.print();
     } else {
       setDownloadType({ ...downloadType, downloadNow: true });
     }
@@ -115,24 +112,40 @@ function App() {
 
   return (
     <div className="App">
-      <div>
-        {dom && (
-          <>
-            <>
-              <button onClick={() => handleDownload()}>
-                DOWNLOAD AS A PDF
-              </button>
-              <button onClick={() => handleDownload(DownloadType.DOC)}>
-                DOWNLOAD AS A DOC
-              </button>
-            </>
+      {true && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            width: "100%",
+            flexDirection: "column",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%",
+              gap: "40px",
+            }}
+          >
+            <div style={{ fontSize: "15px" }}>Export Options</div>
+            <button onClick={() => handleDownload()} title="DOWNLOAD AS A PDF">
+              <img src="./pdf.svg" />
+            </button>
+            <button
+              onClick={() => handleDownload(DownloadType.DOC)}
+              title="DOWNLOAD AS A DOC"
+            >
+              <img src="./doc.svg" />
+            </button>
+          </div>
+          <div className="solid"></div>
 
-            <div id="contentToPrint">
-              {getElement()}
-            </div>
-          </>
-        )}
-      </div>
+          <div id="contentToPrint">{getElement()}</div>
+        </div>
+      )}
     </div>
   );
 }
