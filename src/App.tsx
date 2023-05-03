@@ -51,10 +51,8 @@ function App() {
         const divsHtml = [];
 
         for (let i = 0; i < all.length; i++) {
-          divsHtml.push(all[i].outerHTML);
-          divsHtml.push(
-            '<div style="background-color:red; height:30px;"></div>'
-          );
+          divsHtml.push('<div style="color:black;">'+ all[i].outerHTML+'</div>');
+          divsHtml.push('<div style="height:30px;"></div>');
         }
         const html = divsHtml.join("");
         setDom(html);
@@ -114,7 +112,7 @@ function App() {
 
   function Export2Word(filename = "") {
     var preHtml =
-      "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export HTML To Doc</title></head><body>";
+      "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export HTML To Doc</title></head><body style='color:black;'>";
     var postHtml = "</body></html>";
 
     var html = preHtml + dom + postHtml;
@@ -143,18 +141,23 @@ function App() {
     document.body.removeChild(downloadLink);
   }
 
+  const getElement = () => {
+    return  <div dangerouslySetInnerHTML={{ __html: dom }} />
+  };
+
   return (
     <div className="App">
       <div>
         {dom ? (
           <>
             <div id="contentToPrint">
-              <Editor
+              {/* <Editor
                 editorState={editorState}
                 onChange={setEditorState}
                 readOnly={downloadType.downloadNow}
                 textAlignment="left"
-              />
+              /> */}
+              {getElement()}
             </div>
             {downloadType.downloadNow ? (
               <>
